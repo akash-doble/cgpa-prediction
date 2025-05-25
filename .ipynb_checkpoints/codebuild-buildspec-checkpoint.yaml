@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+    commands:
+      - echo "Installing dependencies..."
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install sagemaker boto3
+
+  build:
+    commands:
+      - echo "Running pipeline.py using custom Docker logic"
+      - export PYTHONUNBUFFERED=TRUE
+      - export SAGEMAKER_PROJECT_NAME_ID="${SAGEMAKER_PROJECT_NAME}-${SAGEMAKER_PROJECT_ID}"
+      - |
+        python pipeline.py \
+          --region ${AWS_REGION} \
+          --role ${SAGEMAKER_PIPELINE_ROLE_ARN} \
+          --bucket ${ARTIFACT_BUCKET} \
+          --project_name ${SAGEMAKER_PROJECT_NAME_ID}
+      - echo "Pipeline execution triggered."
